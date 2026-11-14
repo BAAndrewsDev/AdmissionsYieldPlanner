@@ -1,0 +1,9 @@
+group,residency,gender,tier,applicants,yield_rate,annual_tuition,input_status
+IM,in_state,male,GA,3000,0.35,15014,assumed_admissions_published_tuition_assumed_tier_mapping
+IM,in_state,male,DA,3000,0.525,21254,assumed_admissions_published_tuition_assumed_tier_mapping
+IF,in_state,female,GA,3750,0.26,15014,assumed_admissions_published_tuition_assumed_tier_mapping
+IF,in_state,female,DA,3750,0.39,21254,assumed_admissions_published_tuition_assumed_tier_mapping
+OM,out_of_state,male,GA,3750,0.08,46058,assumed_admissions_published_tuition_assumed_tier_mapping
+OM,out_of_state,male,DA,3750,0.12,50166,assumed_admissions_published_tuition_assumed_tier_mapping
+OF,out_of_state,female,GA,4500,0.06,46058,assumed_admissions_published_tuition_assumed_tier_mapping
+OF,out_of_state,female,DA,4500,0.09,50166,assumed_admissions_published_tuition_assumed_tier_mapping

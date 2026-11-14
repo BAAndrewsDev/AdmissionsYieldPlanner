@@ -1,0 +1,45 @@
+{
+  "scenario_name": "illustrative_default",
+  "created_date": "2026-11-14",
+  "data_basis": "Proposal assumptions and agreed team defaults; not observed university data",
+  "tuition_status": "published_2026_27_rates_verified_2026_11_14",
+  "ready_for_revenue_optimization": true,
+  "currency": "USD",
+  "tuition_period": "annual",
+  "yield_units": "fraction",
+  "applicant_pool_total": 15000,
+  "applicant_pool_scope": "Shared by GA and DA within each group; do not sum across tiers",
+  "beds": 1000,
+  "program_seats": 700,
+  "waitlist_share": 0.1,
+  "waitlist_rounding": "nearest integer, half up, once per group",
+  "minimum_in_state_share_per_tier": 0.55,
+  "female_share_lower_per_tier": 0.45,
+  "female_share_upper_per_tier": 0.55,
+  "capacity_basis": "expected_enrollment",
+  "all_enrolled_students_require_bed": true,
+  "direct_admit_yield_multiplier": 1.5,
+  "tuition_source_url": "https://www.colorado.edu/bursar/costs/undergraduate",
+  "tuition_academic_year": "2026-27",
+  "sensitivity_cases": {
+    "beds": [
+      800,
+      1000,
+      1200
+    ],
+    "direct_admit_yield_multiplier": [
+      1.0,
+      1.25,
+      1.5
+    ]
+  },
+  "provenance": {
+    "source_document": "Drew_OpMod_FinalProjectPropsal.pdf",
+    "source_document_date": "2026-11-08",
+    "applicant_counts": "Illustrative proposal values",
+    "yield_rates": "Illustrative proposal values, not verified historical rates",
+    "capacity_and_composition": "Illustrative scenario assumptions, not asserted institutional policies",
+    "annual_tuition": "CU Boulder incoming undergraduate annual tuition and mandatory fees, 2026-27. GA=Base and DA=Business mapping is assumed. Resident values are after COF; objective excludes COF receipts."
+  },
+  "minimum_expected_enrollment": 0
+}

@@ -1,0 +1,19 @@
+{
+  "publisher": "University of Colorado Boulder Bursar Office",
+  "url": "https://www.colorado.edu/bursar/costs/undergraduate",
+  "accessed_date": "2026-11-14",
+  "academic_year": "2026-27",
+  "scope": "Incoming full-time undergraduate annual tuition and mandatory fees, fall and spring",
+  "rates_usd": {
+    "resident_base": 15014,
+    "resident_business_tier_4": 21254,
+    "nonresident_base": 46058,
+    "nonresident_business_tier_4": 50166
+  },
+  "notes": [
+    "Resident rates are the student share after COF; COF funding is not added to modeled receipts.",
+    "One-time new student fees, housing, food, books, financial aid, and institutional expenses are excluded.",
+    "GA=Base and DA=Business/Tier 4 is a hypothetical modeling mapping, not an admissions rule verified by this source.",
+    "Published source values can differ from user-edited scenario inputs."
+  ]
+}
