@@ -11,6 +11,13 @@ st.title("Admissions Yield Planner")
 st.write("Choose an aggregate admissions plan that maximizes expected annual tuition-and-fee receipts under capacity and composition targets.")
 st.caption("Educational scenario, not CU Boulder's actual admissions process. Applicant counts, yields, capacities, and targets are assumptions. No individual applicant decisions are made.")
 data, initial = defaults()
+# A running browser may still hold results from the old repeated-pool schema.
+if "last" in st.session_state:
+    previous_result = st.session_state["last"][0]
+    if previous_result.get("ok") and "ga_consideration_pool" not in previous_result["plan"]:
+        st.session_state.pop("last", None)
+        st.session_state.pop("sweep", None)
+        st.info("The applicant-pool layout has changed. Please solve again with the updated inputs.")
 
 with st.sidebar:
     st.header("Scenario assumptions")
@@ -21,13 +28,19 @@ with st.sidebar:
 with st.form("scenario"):
     left,right=st.columns([2,1])
     with left:
-        st.subheader("Assumed applicants and yield rates")
-        st.caption("Applicant pools are shared across GA and DA. Yields are fractions: 0.35 means 35%.")
-        edited=st.data_editor(data[["group","tier","applicants","yield_rate"]],
+        st.subheader("Original applicant pools")
+        st.caption("Everyone starts in the DA applicant pool. Enter each group's total once. GA consideration pool = total applicants − DA offers; it is calculated after solving, not entered separately.")
+        pool_inputs=st.data_editor(pd.DataFrame([
+            dict(group=g,total_applicants=initial["applicant_pools"][g]) for g in GROUPS]),
+            disabled=["group"],hide_index=True,width="stretch",
+            column_config={"total_applicants":st.column_config.NumberColumn(min_value=0,step=1)},
+            key="original_pools")
+        st.subheader("Assumed yield rates")
+        st.caption("Yields are fractions: 0.35 means 35%.")
+        edited=st.data_editor(data[["group","tier","yield_rate"]],
             disabled=["group","tier"], hide_index=True, width="stretch",
-            column_config={"applicants":st.column_config.NumberColumn(min_value=0,step=1),
-                           "yield_rate":st.column_config.NumberColumn(min_value=0.,max_value=1.,step=.005,format="%.3f")})
-        st.caption("Edit applicant counts in both rows of a group consistently; inconsistent shared pools are rejected.")
+            column_config={"yield_rate":st.column_config.NumberColumn(min_value=0.,max_value=1.,step=.005,format="%.3f")})
+        st.caption("GA offers, waitlists, and denials share the remaining pool after DA offers. Both offer counts are optimized jointly; no separate DA-priority objective is imposed.")
         st.subheader("Published 2026–27 annual tuition and fees")
         st.caption("GA uses Base; DA uses Business/Tier 4. That admission-to-program mapping is a model assumption. Resident figures are the student share after COF; fees are included. Housing, aid, and COF receipts are excluded from the objective.")
         rates=[]
@@ -57,7 +70,7 @@ st.link_button("CU Boulder 2026–27 source", "https://www.colorado.edu/bursar/c
 if submitted:
     try:
         frame=data.copy()
-        frame["applicants"]=edited.applicants.to_numpy()
+        p["applicant_pools"]=dict(zip(pool_inputs.group,pool_inputs.total_applicants))
         frame["yield_rate"]=edited.yield_rate.to_numpy()
         rate_map={(res,t):v for res,t,v in rates}
         frame["annual_tuition"]=[rate_map[(row.residency,"GA" if same_rates else row.tier)] for row in frame.itertuples()]
@@ -86,14 +99,17 @@ cols=st.columns(4)
 cols[0].metric("Expected annual receipts",f"${r['revenue']:,.0f}")
 cols[1].metric("Expected enrolled / beds",f"{r['expected_enrollment']:,.2f} / {p['beds']:,}")
 cols[2].metric("DA expected enrolled / seats",f"{r['da_enrollment']:,.2f} / {p['program_seats']:,}")
-cols[3].metric("Applicants (unique pools)",f"{int(frame.groupby('group').applicants.first().sum()):,}")
+cols[3].metric("Applicants (unique pools)",f"{sum(p['applicant_pools'].values()):,.0f}")
 plan_tab,limits_tab,compare_tab,sweep_tab,about_tab=st.tabs(["Admissions plan","Limits and verification","Compare scenarios","Capacity sweep","Model and assumptions"])
 with plan_tab:
     st.dataframe(r["plan"],hide_index=True,width="stretch")
-    st.bar_chart(r["plan"].set_index("group")[["direct_admits","general_admits"]])
+    st.caption("GA consideration pool overlaps the original pool. Do not add it to total applicants. DA offers + GA offers + waitlisted + denied = total applicants.")
+    st.bar_chart(r["plan"].set_index("group")[["da_offers","ga_offers"]])
     st.dataframe(r["detail"],hide_index=True,width="stretch")
     st.download_button("Download plan CSV",r["plan"].to_csv(index=False),"admissions_plan.csv","text/csv")
     st.download_button("Download submitted inputs CSV",frame.to_csv(index=False),"scenario_inputs.csv","text/csv")
+    pools_export=pd.DataFrame([dict(group=g,total_applicants=n) for g,n in p["applicant_pools"].items()])
+    st.download_button("Download original applicant pools CSV",pools_export.to_csv(index=False),"applicant_pools.csv","text/csv")
     st.download_button("Download submitted settings",json.dumps(p,indent=2),"scenario_settings.json","application/json")
 with limits_tab:
     st.write("Expected composition by tier (a share is blank if the tier is empty)")
@@ -137,6 +153,6 @@ with sweep_tab:
         st.line_chart(table.set_index("capacity")[["receipts"]])
 with about_tab:
     st.latex(r"\max \sum_{g,t} T_{g,t}y_{g,t}a_{g,t}")
-    st.write("Whole-number admits a share each group's pool across GA and DA. Expected enrollment is yield y times admits. Enforce expected bed and DA seat capacity, waitlist reserves, and per-tier composition targets. Denied is the unallocated pool.")
+    st.write("For each group: GA consideration pool = total applicants − DA offers. GA offers + waitlisted + denied = GA consideration pool. All offers, consideration pools, and denied counts are nonnegative integers. Male and female expected enrollment is explicitly constrained nonnegative. Both tiers are optimized jointly, not in two priority rounds.")
     st.write("All counts, yields, capacities, and targets are illustrative assumptions. The tuition amounts are published 2026–27 full-time annual tuition and mandatory fees; mapping DA to Business and GA to Base is assumed. Scholarships, retention, COF funding, institutional costs, and housing revenue are not modeled.")
     st.warning("Expected enrollment constraints do not prevent actual over-enrollment. This is a classroom planning exercise, not an individual admissions system or a verified representation of university policy.")

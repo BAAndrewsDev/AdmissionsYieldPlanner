@@ -1,0 +1,5 @@
+group,residency,gender,total_applicants
+IM,in_state,male,3000
+IF,in_state,female,3750
+OM,out_of_state,male,3750
+OF,out_of_state,female,4500
