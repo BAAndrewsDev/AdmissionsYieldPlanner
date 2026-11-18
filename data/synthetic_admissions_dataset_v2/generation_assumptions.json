@@ -1,0 +1,81 @@
+{
+  "dataset_type": "SYNTHETIC",
+  "seed": 20261117,
+  "cycles": 5,
+  "applicants_per_cycle": 15000,
+  "cycle_labels": "SIM_01 to SIM_05; not actual academic years",
+  "cohort_scope": "Each applicant ID is a separate simulated person within one cycle; no personal records are used",
+  "applicant_flow": "All apply to DA. Those without DA offers are considered for GA; GA offers, waitlists and denials partition the remaining pool.",
+  "optimization_semantics": "Descriptive staged flow; no DA-priority optimization or ranking is implied.",
+  "schema_version": 2,
+  "pools": [
+    {
+      "group": "IM",
+      "residency": "in_state",
+      "gender": "male",
+      "total_applicants": 3000,
+      "base_GA_yield": 0.35
+    },
+    {
+      "group": "IF",
+      "residency": "in_state",
+      "gender": "female",
+      "total_applicants": 3750,
+      "base_GA_yield": 0.26
+    },
+    {
+      "group": "OM",
+      "residency": "out_of_state",
+      "gender": "male",
+      "total_applicants": 3750,
+      "base_GA_yield": 0.08
+    },
+    {
+      "group": "OF",
+      "residency": "out_of_state",
+      "gender": "female",
+      "total_applicants": 4500,
+      "base_GA_yield": 0.06
+    }
+  ],
+  "decision_shares": {
+    "DA": 0.25,
+    "GA": 0.45,
+    "WAITLIST": 0.1,
+    "DENIED": 0.2
+  },
+  "rounding": "half-up, remainder assigned to denied",
+  "DA_yield_multiplier": 1.5,
+  "cycle_yield_multipliers": [
+    0.9,
+    1.05,
+    0.95,
+    1.1,
+    1.0
+  ],
+  "group_cycle_yield_multiplier": "Independent Uniform(0.95,1.05), shared by both tiers",
+  "enrollment_model": "Independent Bernoulli draws conditional on cycle/group yield; waitlisted/denied do not enroll",
+  "yield_probability_bounds": [
+    0.01,
+    0.99
+  ],
+  "tuition_reference": {
+    "academic_year": "2026-27",
+    "source_url": "https://www.colorado.edu/bursar/costs/undergraduate",
+    "source_verified_date": "2026-11-14",
+    "resident_GA": 15014,
+    "resident_DA": 21254,
+    "nonresident_GA": 46058,
+    "nonresident_DA": 50166,
+    "mapping": "GA=Base and DA=Business/Tier 4 is hypothetical, not a verified admission policy",
+    "constant_across_simulations": true,
+    "resident_basis": "Student share after COF; fees included"
+  },
+  "limitations": [
+    "No empirical admissions calibration; not historical CU records.",
+    "More simulated rows do not establish yield accuracy.",
+    "Plans are not optimized and are not constrained to fit 1000 beds or 700 program seats.",
+    "No academic merit or individual admission ranking is modeled.",
+    "Bernoulli independence is an assumption; unmodeled shared shocks may change risk."
+  ]
+}

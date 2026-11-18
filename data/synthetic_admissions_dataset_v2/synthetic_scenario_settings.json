@@ -1,0 +1,18 @@
+{
+  "scenario_name": "SYNTHETIC pooled yields",
+  "dataset_type": "SYNTHETIC",
+  "applicant_pools": {
+    "IM": 3000,
+    "IF": 3750,
+    "OM": 3750,
+    "OF": 4500
+  },
+  "beds": 1000,
+  "program_seats": 700,
+  "waitlist_share": 0.1,
+  "minimum_in_state_share_per_tier": 0.55,
+  "female_share_lower_per_tier": 0.45,
+  "female_share_upper_per_tier": 0.55,
+  "minimum_expected_enrollment": 0,
+  "note": "Settings use 15,000 original applicants once. GA consideration counts are solver outputs."
+}

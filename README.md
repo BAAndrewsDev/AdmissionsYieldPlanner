@@ -45,16 +45,33 @@ All applicant counts, yield rates, capacities, composition targets, and
 the assumption that every enrollee needs a bed are hypothetical. This is
 not an individual admissions system or a statement of university policy.
 
-`data/admissions_inputs.csv` has eight group-tier rows. Applicant counts
-repeat across tiers for convenience but are shared: 15,000 unique applicants,
-not 30,000. Half-up rounding applies to each group's waitlist once; 10%
+`data/applicant_pools.csv` stores each group's original `total_applicants`
+once (four rows). `data/tier_inputs.csv` stores yields and tuition for the
+eight group-tier combinations, without repeated applicant counts.
+The older `data/admissions_inputs.csv` is retained as a legacy snapshot and
+is no longer read by the app. Half-up rounding applies to each group's waitlist once; 10%
 reserves 1,500 applicants. All rates and shares use fractions, not percentages.
 This app's data folder contains the completed dataset used by the model.
 
 ## Model
 
 Integer admits a[g,t] maximize sum(tuition[g,t] * yield[g,t] * a[g,t]).
-Each group's DA plus GA admits cannot exceed its pool minus waitlist.
+All applicants initially enter one pool per group. Define a nonnegative
+integer GA consideration count q[g] = total_applicants[g] - DA_offers[g].
+Then GA_offers[g] + waitlisted[g] + denied[g] = q[g], with denied >= 0.
+Consequently DA offers + GA offers + waitlisted + denied equals the original
+pool. The GA consideration count is an output, not an independent input.
+It includes everyone without a DA offer; GA offers, waitlist and denials
+are the subsequent mutually exclusive outcomes. A DA offer that is declined
+does not return to the GA pool in this single-round model.
+
+The solver chooses both tiers jointly. This flow formulation does not add
+a separate priority objective that maximizes DA offers first.
+All individual male/female admit variables already have lower bound zero.
+Named non-negativity constraints additionally make these restrictions
+explicit for every group/tier and male/female expected-enrollment total.
+Independent result checks verify that GA consideration, GA allocations,
+denials and male/female enrollment cannot be negative.
 Expected total enrollment cannot exceed beds. Expected DA enrollment cannot
 exceed program seats. Enforce in-state minimum and female lower/upper shares
 on expected enrollment within each tier. Denied equals the remaining pool.
@@ -103,3 +120,30 @@ raise the in-state minimum, and compare saved scenarios. Demonstrate a
 minimum enrollment above bed capacity to show infeasibility handling.
 Finalize the 3–5-page memo, 10–15-minute recording, and factual AI-use
 statement separately before the Track B submission.
+
+## Synthetic admissions dataset
+
+[`data/synthetic_admissions_dataset_v2/`](data/synthetic_admissions_dataset_v2/README.md)
+contains 75,000 explicitly synthetic applicants across five simulated cycles,
+20 applicant-flow summaries, and yields for all eight group/tier combinations.
+The original pool appears once per group; GA consideration is the remainder
+after DA offers. The package includes assumptions and a seeded generator.
+These are not historical CU admissions records or evidence of yield accuracy.
+
+The app continues to use its baseline inputs by default. To solve a separate
+synthetic scenario through the backend:
+
+```python
+import json
+from pathlib import Path
+import pandas as pd
+from admissions_model import solve
+
+folder = Path(__file__).resolve().parent / "data/synthetic_admissions_dataset_v2"
+frame = pd.read_csv(folder / "synthetic_model_inputs.csv")
+settings = json.loads((folder / "synthetic_scenario_settings.json").read_text())
+result = solve(frame, settings)
+```
+
+Save this snippet as a Python file in the app folder. The four original
+applicant pools are supplied through settings, not repeated on tier rows.
